@@ -1,0 +1,28 @@
+import streamlit as st
+import pandas as pd
+import pickle
+
+# Load data
+movies = pickle.load(open("movies.pkl", "rb"))
+similarity = pickle.load(open("similarity.pkl", "rb"))
+
+# Recommendation function
+def recommend(movie_name, top_n=5):
+    movie_index = movies[movies["title"] == movie_name].index[0]
+    similarity_scores = list(enumerate(similarity[movie_index]))
+    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+    recommended_movies = []
+
+    for movie in similarity_scores[1:top_n + 1]:
+        recommended_movies.append(movies.iloc[movie[0]]["title"])
+    return recommended_movies
+
+# Task 6: Building the Streamlit UI
+# Streamlit UI
+st.title("🎬 Movie Recommendation System")
+selected_movie = st.selectbox("Select a Movie",movies["title"].values)
+if st.button("Recommend"):
+    recommendations = recommend(selected_movie)
+    st.subheader("Top 5 Recommended Movies")
+    for movie in recommendations:
+        st.write(movie)
